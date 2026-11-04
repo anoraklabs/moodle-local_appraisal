@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/appraisal/db" VERSION="20261021" COMMENT="XMLDB file for Moodle local/appraisal"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="local_appraisal_scale" COMMENT="A grading scale: an ordered set of levels shared by templates">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Optional plain text"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="1 = active, 2 = archived"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="usermodified" TYPE="foreign" FIELDS="usermodified" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="status" UNIQUE="false" FIELDS="status"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_appraisal_scale_level" COMMENT="One level of a grading scale">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="scaleid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="sortorder" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="1 to the number of levels, lowest first"/>
+        <FIELD NAME="label" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="value" TYPE="number" LENGTH="10" NOTNULL="true" SEQUENCE="false" DECIMALS="2" COMMENT="Strictly ascending in sortorder; never shown outside the scale editor"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Optional plain text shown to people choosing the level"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="scaleid" TYPE="foreign" FIELDS="scaleid" REFTABLE="local_appraisal_scale" REFFIELDS="id"/>
+        <KEY NAME="usermodified" TYPE="foreign" FIELDS="usermodified" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="scaleid-sortorder" UNIQUE="false" FIELDS="scaleid, sortorder"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_appraisal_template" COMMENT="An appraisal form; its content lives in versions">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="1 = active, 2 = archived"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="usermodified" TYPE="foreign" FIELDS="usermodified" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="status" UNIQUE="false" FIELDS="status"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_appraisal_template_version" COMMENT="A content set of a template: sections, fields and settings">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="templateid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="versionnumber" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="overview" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Optional HTML guidance shown at the top of the appraisal"/>
+        <FIELD NAME="overviewformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="commentsmode" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="2" SEQUENCE="false" COMMENT="The appraiser's overall comments: 1 = off, 2 = optional, 3 = required"/>
+        <FIELD NAME="overallgrademode" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Overall grade: 1 = off, 2 = optional, 3 = required"/>
+        <FIELD NAME="overallscaleid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Scale for the overall grade; required unless the mode is off"/>
+        <FIELD NAME="reminderdays" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Days before the due date to send the reminder; null means no reminder"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="1 = draft, 2 = published, 3 = archived"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="templateid" TYPE="foreign" FIELDS="templateid" REFTABLE="local_appraisal_template" REFFIELDS="id"/>
+        <KEY NAME="overallscaleid" TYPE="foreign" FIELDS="overallscaleid" REFTABLE="local_appraisal_scale" REFFIELDS="id"/>
+        <KEY NAME="usermodified" TYPE="foreign" FIELDS="usermodified" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="templateid-versionnumber" UNIQUE="true" FIELDS="templateid, versionnumber"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_appraisal_template_section" COMMENT="An optional group of fields in a template version">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="template_versionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="sortorder" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Optional HTML shown under the section heading"/>
+        <FIELD NAME="descriptionformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="template_versionid" TYPE="foreign" FIELDS="template_versionid" REFTABLE="local_appraisal_template_version" REFFIELDS="id"/>
+        <KEY NAME="usermodified" TYPE="foreign" FIELDS="usermodified" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="template_versionid-sortorder" UNIQUE="false" FIELDS="template_versionid, sortorder"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_appraisal_template_field" COMMENT="One item on the form of a template version">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="template_versionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="sectionid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Null when the version has no sections"/>
+        <FIELD NAME="sortorder" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="1 to N across the whole version"/>
+        <FIELD NAME="type" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="1 = short text, 2 = long text, 3 = single choice, 4 = multiple choice, 5 = graded rating, 6 = date, 7 = number"/>
+        <FIELD NAME="label" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Plain text"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Optional plain text help shown under the label"/>
+        <FIELD NAME="completedby" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="1 = appraiser, 2 = appraisee, 3 = both"/>
+        <FIELD NAME="required" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="scaleid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Set only for graded rating"/>
+        <FIELD NAME="configdata" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="JSON type settings: choice options and display, number limits"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="template_versionid" TYPE="foreign" FIELDS="template_versionid" REFTABLE="local_appraisal_template_version" REFFIELDS="id"/>
+        <KEY NAME="sectionid" TYPE="foreign" FIELDS="sectionid" REFTABLE="local_appraisal_template_section" REFFIELDS="id"/>
+        <KEY NAME="scaleid" TYPE="foreign" FIELDS="scaleid" REFTABLE="local_appraisal_scale" REFFIELDS="id"/>
+        <KEY NAME="usermodified" TYPE="foreign" FIELDS="usermodified" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="template_versionid-sortorder" UNIQUE="false" FIELDS="template_versionid, sortorder"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_appraisal_assignment" COMMENT="Links a template to one appraisee">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="templateid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The appraisee"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="templateid" TYPE="foreign" FIELDS="templateid" REFTABLE="local_appraisal_template" REFFIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="usermodified" TYPE="foreign" FIELDS="usermodified" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="templateid-userid" UNIQUE="true" FIELDS="templateid, userid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_appraisal_record" COMMENT="One appraisal cycle for an assignment, pinned to a template version">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="assignmentid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="template_versionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="appraiserid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Current owner"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="1 = not started, 2 = in progress, 3 = submitted, 4 = completed"/>
+        <FIELD NAME="label" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Optional plain text cycle label"/>
+        <FIELD NAME="duedate" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="23:59:59 of the chosen day in the site timezone"/>
+        <FIELD NAME="timereminded" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="When the due date reminder was sent"/>
+        <FIELD NAME="timestarted" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timesubmitted" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The appraisee's first submission; never cleared, it opens the visibility of both people's answers"/>
+        <FIELD NAME="timecompleted" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Sign-off date"/>
+        <FIELD NAME="overalllevelid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The overall grade: a local_appraisal_scale_level id"/>
+        <FIELD NAME="comment" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The appraiser's overall comments, plain text"/>
+        <FIELD NAME="commentformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="2" SEQUENCE="false" COMMENT="Always FORMAT_PLAIN"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="assignmentid" TYPE="foreign" FIELDS="assignmentid" REFTABLE="local_appraisal_assignment" REFFIELDS="id"/>
+        <KEY NAME="template_versionid" TYPE="foreign" FIELDS="template_versionid" REFTABLE="local_appraisal_template_version" REFFIELDS="id"/>
+        <KEY NAME="appraiserid" TYPE="foreign" FIELDS="appraiserid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="overalllevelid" TYPE="foreign" FIELDS="overalllevelid" REFTABLE="local_appraisal_scale_level" REFFIELDS="id"/>
+        <KEY NAME="usermodified" TYPE="foreign" FIELDS="usermodified" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="status-duedate" UNIQUE="false" FIELDS="status, duedate"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_appraisal_record_answer" COMMENT="One person's saved answer to one field on one record">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="recordid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="fieldid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="role" TYPE="int" LENGTH="2" NOTNULL="true" SEQUENCE="false" COMMENT="Whose answer: 1 = appraiser, 2 = appraisee"/>
+        <FIELD NAME="valueint" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Single choice option key, scale level id or date timestamp"/>
+        <FIELD NAME="valuenumber" TYPE="number" LENGTH="20" NOTNULL="false" SEQUENCE="false" DECIMALS="5" COMMENT="Number fields"/>
+        <FIELD NAME="valuetext" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Text fields, or a JSON array of option keys for multiple choice"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Who last saved this answer"/>
+        <FIELD NAME="timeanswered" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="recordid" TYPE="foreign" FIELDS="recordid" REFTABLE="local_appraisal_record" REFFIELDS="id"/>
+        <KEY NAME="fieldid" TYPE="foreign" FIELDS="fieldid" REFTABLE="local_appraisal_template_field" REFFIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="usermodified" TYPE="foreign" FIELDS="usermodified" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="recordid-fieldid-role" UNIQUE="true" FIELDS="recordid, fieldid, role"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_appraisal_record_transfer" COMMENT="Append-only log of record ownership changes">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="recordid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="fromappraiserid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="toappraiserid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="actorid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="recordid" TYPE="foreign" FIELDS="recordid" REFTABLE="local_appraisal_record" REFFIELDS="id"/>
+        <KEY NAME="fromappraiserid" TYPE="foreign" FIELDS="fromappraiserid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="toappraiserid" TYPE="foreign" FIELDS="toappraiserid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="actorid" TYPE="foreign" FIELDS="actorid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="local_appraisal_record_history" COMMENT="Append-only log of record status changes">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="recordid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="fromstatus" TYPE="int" LENGTH="2" NOTNULL="false" SEQUENCE="false" COMMENT="Null on the row logging the record's creation"/>
+        <FIELD NAME="tostatus" TYPE="int" LENGTH="2" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="actorid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Null when the scheduled task made the change"/>
+        <FIELD NAME="comment" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="recordid" TYPE="foreign" FIELDS="recordid" REFTABLE="local_appraisal_record" REFFIELDS="id"/>
+        <KEY NAME="actorid" TYPE="foreign" FIELDS="actorid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="local_appraisal_cohort_link" COMMENT="Members of the appraiser cohort can appraise members of the appraisee cohort">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="appraisercohortid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="appraiseecohortid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="appraisercohortid" TYPE="foreign" FIELDS="appraisercohortid" REFTABLE="cohort" REFFIELDS="id"/>
+        <KEY NAME="appraiseecohortid" TYPE="foreign" FIELDS="appraiseecohortid" REFTABLE="cohort" REFFIELDS="id"/>
+        <KEY NAME="usermodified" TYPE="foreign" FIELDS="usermodified" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="appraisercohortid-appraiseecohortid" UNIQUE="true" FIELDS="appraisercohortid, appraiseecohortid"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>

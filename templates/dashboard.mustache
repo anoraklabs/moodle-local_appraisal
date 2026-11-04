@@ -1,0 +1,147 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_appraisal/dashboard
+
+    One user's appraisal dashboard: current appraisals per assignment, and optional history.
+
+    Context variables required for this template:
+    * hascurrent, current - rows of primaryaction (label, url, or null; the main action as a button) and actionmenu (the
+      rest as core's kebab menu, rendered by output\row_actions, or empty), template, archived (whether the template is
+      archived, shown as a badge), cycle (label and status of the open cycle, or empty), due (date or empty), overdue
+      (whether the open cycle is past its due date), last (date and overall grade of the latest completed cycle, or
+      empty).
+      template is already formatted with format_string(); last is built from an escaped date and a format_string()
+      grade label; the rest is plain text escaped by the template
+    * assignurl - Assign template URL, or null if nothing can be assigned
+    * extraactions - links added by other plugins through the before_dashboard_actions_exported hook (label, url)
+    * showhistory, historyurl, hidehistoryurl - history toggle
+    * historyfilter - rendered template filter select, or null when there is at most one template in the history
+    * hashistory, historyrows - rows of template, cycle, completed, grade, appraiser (plain text) and url (the record)
+
+    Example context (json):
+    {
+        "hascurrent": true,
+        "current": [
+            {"template": "Annual performance appraisal", "archived": true, "cycle": "2026 review · In progress",
+             "due": "31 March 2027", "overdue": true, "last": "12 March 2026 · Meets expectations",
+             "primaryaction": {"label": "Open", "url": "#"},
+             "actionmenu": "<div class=\"action-menu\"><a href=\"#\" role=\"button\">Actions</a></div>"}
+        ],
+        "assignurl": "#",
+        "extraactions": [{"label": "Export history", "url": "#"}],
+        "showhistory": true,
+        "historyurl": "#",
+        "hidehistoryurl": "#",
+        "hashistory": true,
+        "historyrows": [
+            {"template": "Annual performance appraisal", "cycle": "2025 review", "completed": "12 March 2026",
+             "grade": "Meets expectations", "appraiser": "Sam Appraiser", "url": "#"}
+        ]
+    }
+}}
+<div class="d-flex align-items-center mb-3">
+    <h2 class="h3 mb-0 me-auto">{{#str}} currentappraisals, local_appraisal {{/str}}</h2>
+    {{#extraactions}}<a href="{{url}}" class="btn btn-secondary me-2">{{label}}</a>{{/extraactions}}
+    {{#assignurl}}
+    <a href="{{assignurl}}" class="btn btn-primary">{{#str}} assigntemplate, local_appraisal {{/str}}</a>
+    {{/assignurl}}
+</div>
+{{#hascurrent}}
+<div class="table-responsive">
+<table class="table generaltable">
+    <thead>
+        <tr>
+            <th scope="col">{{#str}} template, local_appraisal {{/str}}</th>
+            <th scope="col">{{#str}} currentcycle, local_appraisal {{/str}}</th>
+            <th scope="col">{{#str}} due, local_appraisal {{/str}}</th>
+            <th scope="col">{{#str}} lastcompleted, local_appraisal {{/str}}</th>
+            <th scope="col">{{#str}} actions {{/str}}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#current}}
+        <tr>
+            <td>
+                {{{template}}}
+                {{#archived}}
+                <span class="badge bg-warning text-dark ms-1">{{#str}} statusarchived, local_appraisal {{/str}}</span>
+                {{/archived}}
+            </td>
+            <td>{{cycle}}{{^cycle}}&mdash;{{/cycle}}</td>
+            <td>
+                {{due}}{{^due}}&mdash;{{/due}}
+                {{#overdue}}<span class="badge bg-danger ms-1">{{#str}} overdue, local_appraisal {{/str}}</span>{{/overdue}}
+            </td>
+            <td>{{{last}}}{{^last}}&mdash;{{/last}}</td>
+            <td>
+                <div class="d-flex align-items-center gap-1">
+                    {{#primaryaction}}<a href="{{url}}" class="btn btn-secondary btn-sm">{{label}}</a>{{/primaryaction}}
+                    {{{actionmenu}}}
+                </div>
+            </td>
+        </tr>
+        {{/current}}
+    </tbody>
+</table>
+</div>
+{{/hascurrent}}
+{{^hascurrent}}
+<p>{{#str}} noassignments, local_appraisal {{/str}}</p>
+{{/hascurrent}}
+
+<div class="mt-4">
+    {{^showhistory}}<a href="{{historyurl}}">{{#str}} showhistory, local_appraisal {{/str}}</a>{{/showhistory}}
+    {{#showhistory}}
+    <h2 class="h3">{{#str}} history, local_appraisal {{/str}}</h2>
+    {{#historyfilter}}<div class="mb-2">{{{historyfilter}}}</div>{{/historyfilter}}
+    {{#hashistory}}
+    <div class="table-responsive">
+    <table class="table generaltable">
+        <thead>
+            <tr>
+                <th scope="col">{{#str}} template, local_appraisal {{/str}}</th>
+                <th scope="col">{{#str}} cycle, local_appraisal {{/str}}</th>
+                <th scope="col">{{#str}} completed, local_appraisal {{/str}}</th>
+                <th scope="col">{{#str}} overallgrade, local_appraisal {{/str}}</th>
+                <th scope="col">{{#str}} appraiser, local_appraisal {{/str}}</th>
+                <th scope="col">{{#str}} view {{/str}}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#historyrows}}
+            <tr>
+                <td>{{{template}}}</td>
+                <td>{{cycle}}{{^cycle}}&mdash;{{/cycle}}</td>
+                <td>{{completed}}</td>
+                <td>{{{grade}}}{{^grade}}&mdash;{{/grade}}</td>
+                <td>{{appraiser}}{{^appraiser}}&mdash;{{/appraiser}}</td>
+                <td>
+                    <a href="{{url}}">
+                        {{#str}} view {{/str}}<span class="visually-hidden"> {{template}}, {{completed}}</span>
+                    </a>
+                </td>
+            </tr>
+            {{/historyrows}}
+        </tbody>
+    </table>
+    </div>
+    {{/hashistory}}
+    {{^hashistory}}<p>{{#str}} nohistory, local_appraisal {{/str}}</p>{{/hashistory}}
+    <a href="{{hidehistoryurl}}">{{#str}} hidehistory, local_appraisal {{/str}}</a>
+    {{/showhistory}}
+</div>

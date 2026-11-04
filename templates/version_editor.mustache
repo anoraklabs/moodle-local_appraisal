@@ -1,0 +1,165 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_appraisal/version_editor
+
+    The draft editor: version settings form, the sortable field list, and the publish/discard footer.
+
+    Context variables required for this template:
+    * versionid - the draft's id
+    * templatename - formatted template name
+    * versionnumber - integer
+    * basedon - previous version number, or null
+    * settingsform - rendered version settings form HTML
+    * settingsformid - HTML id of that form, so Publish can submit it (saving the settings) from the footer
+    * fields - array of id, sortorder, label, description, required, typename, completedbyname, summary, deleteurl
+      (used when there are no sections)
+    * hasfields - whether the version has any fields
+    * hassections - whether the version is divided into sections
+    * sections - array of id, name (formatted), description (HTML or null), fields, hasfields, deleteurl
+    * discardurl, removesectionsurl - action URLs
+    * publishblocked - why Publish is disabled, or null when it can be used
+    * history - array of number, statusname, fields, records, url, current
+    * listurl - URL of the Manage templates page
+
+    Example context (json):
+    {
+        "versionid": 3,
+        "templatename": "Annual performance appraisal",
+        "versionnumber": 2,
+        "basedon": 1,
+        "settingsform": "<form id=\"mform1_example\"></form>",
+        "settingsformid": "mform1_example",
+        "fields": [
+            {"id": 7, "sortorder": 1, "label": "What went well this year?", "required": true,
+             "typename": "Long text", "completedbyname": "Both", "summary": "", "deleteurl": "#"}
+        ],
+        "hasfields": true,
+        "hassections": true,
+        "sections": [
+            {"id": 4, "name": "Review", "description": "<p>Looking back.</p>", "hasfields": true, "deleteurl": "#",
+             "fields": [
+                {"id": 7, "sortorder": 1, "label": "What went well this year?", "required": true,
+                 "typename": "Long text", "completedbyname": "Both", "summary": "", "deleteurl": "#"}
+             ]}
+        ],
+        "discardurl": "#",
+        "removesectionsurl": "#",
+        "publishblocked": null,
+        "history": [
+            {"number": 2, "statusname": "Draft", "fields": 1, "records": 0, "url": "#", "current": true},
+            {"number": 1, "statusname": "Published", "fields": 1, "records": 4, "url": "#", "current": false}
+        ],
+        "listurl": "#"
+    }
+}}
+<div data-region="field-editor" data-versionid="{{versionid}}">
+    <h2>{{{templatename}}}</h2>
+    <p class="text-muted">
+        {{#str}} version, local_appraisal, {{versionnumber}} {{/str}} &mdash; {{#str}} statusdraft, local_appraisal {{/str}}
+        {{#basedon}}&middot; {{#str}} basedon, local_appraisal, {{basedon}} {{/str}}{{/basedon}}
+    </p>
+
+    <h3>{{#str}} versionsettings, local_appraisal {{/str}}</h3>
+    {{{settingsform}}}
+
+    <h3 class="mt-4">{{#str}} fields, local_appraisal {{/str}}</h3>
+    {{^hassections}}
+    {{#hasfields}}
+    <ul class="list-group mb-3" data-region="field-list" data-sectionid="0">
+        {{#fields}}
+        <li class="list-group-item d-flex align-items-start local-appraisal-editor-row" data-region="field-item" data-id="{{id}}">
+            {{> local_appraisal/version_editor_field }}
+        </li>
+        {{/fields}}
+    </ul>
+    {{/hasfields}}
+    {{^hasfields}}
+    <p>{{#str}} nofields, local_appraisal {{/str}}</p>
+    {{/hasfields}}
+    <button type="button" class="btn btn-secondary me-2" data-action="add-field" data-id="0" data-sectionid="0"
+            data-title="{{#str}} addfield, local_appraisal {{/str}}">{{#str}} addfield, local_appraisal {{/str}}</button>
+    {{#hasfields}}
+    <button type="button" class="btn btn-secondary" data-action="add-section" data-id="0"
+            data-title="{{#str}} addsection, local_appraisal {{/str}}">{{#str}} addsection, local_appraisal {{/str}}</button>
+    <p class="form-text text-muted mt-2">{{#str}} addsection_hint, local_appraisal {{/str}}</p>
+    {{/hasfields}}
+    {{/hassections}}
+
+    {{#hassections}}
+    <div data-region="section-list">
+        {{#sections}}
+        <section class="card mb-3" data-region="section-item" data-id="{{id}}" aria-labelledby="local-appraisal-section-{{id}}">
+            <div class="card-header d-flex align-items-start local-appraisal-editor-row">
+                <span class="local-appraisal-drag-handle me-2 text-muted" data-drag-type="move-section" draggable="true"
+                      title="{{#str}} dragtoreorder, local_appraisal {{/str}}" aria-hidden="true">
+                    {{#pix}} i/dragdrop, core {{/pix}}
+                </span>
+                <h4 class="h5 mb-0 local-appraisal-editor-label" id="local-appraisal-section-{{id}}">{{{name}}}</h4>
+                <div class="btn-group btn-group-sm ms-auto" role="group">
+                    <button type="button" class="btn btn-secondary" data-action="move-section-up"
+                            aria-label="{{#str}} movesectionup, local_appraisal {{/str}}"
+                            title="{{#str}} movesectionup, local_appraisal {{/str}}">{{#pix}} i/up, core {{/pix}}</button>
+                    <button type="button" class="btn btn-secondary" data-action="move-section-down"
+                            aria-label="{{#str}} movesectiondown, local_appraisal {{/str}}"
+                            title="{{#str}} movesectiondown, local_appraisal {{/str}}">{{#pix}} i/down, core {{/pix}}</button>
+                    <button type="button" class="btn btn-secondary" data-action="edit-section" data-id="{{id}}"
+                            data-title="{{#str}} editsection, local_appraisal {{/str}}">{{#str}} edit {{/str}}</button>
+                    <a href="{{deleteurl}}" class="btn btn-outline-danger">{{#str}} delete {{/str}}</a>
+                </div>
+            </div>
+            <div class="card-body">
+                {{#description}}<div class="mb-3">{{{description}}}</div>{{/description}}
+                <ul class="list-group mb-2 local-appraisal-section-fields" data-region="field-list" data-sectionid="{{id}}">
+                    {{#fields}}
+                    <li class="list-group-item d-flex align-items-start local-appraisal-editor-row"
+                        data-region="field-item" data-id="{{id}}">
+                        {{> local_appraisal/version_editor_field }}
+                    </li>
+                    {{/fields}}
+                </ul>
+                <p class="text-muted small {{#hasfields}}d-none{{/hasfields}}" data-region="empty-section">
+                    {{#str}} sectionempty, local_appraisal {{/str}}
+                </p>
+                <button type="button" class="btn btn-secondary btn-sm" data-action="add-field" data-id="0"
+                        data-sectionid="{{id}}"
+                        data-title="{{#str}} addfield, local_appraisal {{/str}}">
+                        {{#str}} addfield, local_appraisal {{/str}}</button>
+            </div>
+        </section>
+        {{/sections}}
+    </div>
+    <button type="button" class="btn btn-secondary me-2" data-action="add-section" data-id="0"
+            data-title="{{#str}} addsection, local_appraisal {{/str}}">{{#str}} addsection, local_appraisal {{/str}}</button>
+    <a href="{{removesectionsurl}}" class="btn btn-outline-secondary">{{#str}} removesections, local_appraisal {{/str}}</a>
+    {{/hassections}}
+
+    <div class="mt-4 pt-3 border-top d-flex align-items-center">
+        <button type="submit" form="{{settingsformid}}" name="publishafter" value="1"
+                class="btn btn-primary me-2 {{#publishblocked}}d-none{{/publishblocked}}"
+                data-region="publish-link">{{#str}} publish, local_appraisal {{/str}}</button>
+        <button type="button" class="btn btn-primary me-2 {{^publishblocked}}d-none{{/publishblocked}}" disabled
+                data-region="publish-disabled">{{#str}} publish, local_appraisal {{/str}}</button>
+        <span class="text-muted me-3 {{^publishblocked}}d-none{{/publishblocked}}" data-region="publish-blocked"
+              data-nofields="{{#str}} publishdisabled, local_appraisal {{/str}}"
+              data-emptysection="{{#str}} publishdisabledemptysection, local_appraisal {{/str}}">{{publishblocked}}</span>
+        <a href="{{discardurl}}" class="btn btn-secondary me-2">{{#str}} discarddraft, local_appraisal {{/str}}</a>
+        <a href="{{listurl}}" class="btn btn-link">{{#str}} managetemplates, local_appraisal {{/str}}</a>
+    </div>
+
+    {{> local_appraisal/version_history }}
+</div>

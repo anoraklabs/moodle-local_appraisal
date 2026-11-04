@@ -1,0 +1,81 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_appraisal/scale_editor
+
+    The grading scale editor: details form and the sortable list of levels.
+
+    Context variables required for this template:
+    * scaleid - the scale's id
+    * locked - whether a published or archived template version uses the scale, which freezes its levels
+    * archived - whether the scale is archived
+    * notusable - whether the scale has fewer than two levels, so it cannot be chosen yet
+    * levels - array of id, sortorder, label (formatted), value (formatted number), description (text or null),
+      deleteurl (or null when the scale is locked)
+    * haslevels - whether the scale has any levels
+    * listurl - URL of the Grading scales page
+    * detailsform - rendered details form HTML
+
+    Example context (json):
+    {
+        "scaleid": 3,
+        "locked": false,
+        "archived": false,
+        "notusable": false,
+        "levels": [
+            {"id": 11, "sortorder": 1, "label": "Needs improvement", "value": "1.00",
+             "description": "Below expectations", "deleteurl": "#"},
+            {"id": 12, "sortorder": 2, "label": "Meets expectations", "value": "2.00", "description": null, "deleteurl": "#"}
+        ],
+        "haslevels": true,
+        "listurl": "#",
+        "detailsform": "<form id=\"mform1_example\"></form>"
+    }
+}}
+<div data-region="scale-editor" data-scaleid="{{scaleid}}" data-locked="{{#locked}}1{{/locked}}{{^locked}}0{{/locked}}">
+    {{#locked}}
+    <div class="alert alert-info">{{#str}} scalelockednotice, local_appraisal {{/str}}</div>
+    {{/locked}}
+    {{#archived}}
+    <div class="alert alert-secondary">{{#str}} scalearchivednotice, local_appraisal {{/str}}</div>
+    {{/archived}}
+    {{#notusable}}
+    <div class="alert alert-warning">{{#str}} scalenotusablenotice, local_appraisal {{/str}}</div>
+    {{/notusable}}
+
+    <h3>{{#str}} scaledetails, local_appraisal {{/str}}</h3>
+    {{{detailsform}}}
+
+    <h3 class="mt-4">{{#str}} levels, local_appraisal {{/str}}</h3>
+    {{#haslevels}}
+    <ul class="list-group mb-3" data-region="level-list">
+        {{#levels}}
+        <li class="list-group-item d-flex align-items-start local-appraisal-editor-row" data-region="level-item" data-id="{{id}}">
+            {{> local_appraisal/scale_editor_level }}
+        </li>
+        {{/levels}}
+    </ul>
+    {{/haslevels}}
+    {{^haslevels}}
+    <p>{{#str}} nolevels, local_appraisal {{/str}}</p>
+    {{/haslevels}}
+    {{^locked}}
+    <button type="button" class="btn btn-secondary" data-action="add-level" data-id="0"
+            data-title="{{#str}} addlevel, local_appraisal {{/str}}">{{#str}} addlevel, local_appraisal {{/str}}</button>
+    {{/locked}}
+    <a href="{{listurl}}" class="btn btn-link">{{#str}} gradingscales, local_appraisal {{/str}}</a>
+</div>

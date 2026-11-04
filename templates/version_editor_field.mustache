@@ -1,0 +1,70 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_appraisal/version_editor_field
+
+    The contents of one sortable field row in the draft editor. The caller supplies the
+    <li data-region="field-item"> wrapper, so the example renders as valid HTML on its own.
+
+    Context variables required for this template:
+    * id - the field id
+    * sortorder - its number in the version
+    * label - escaped label text
+    * description - escaped help text, or null
+    * required - whether the field is required
+    * typename - display name of the field type
+    * completedbyname - display name of who completes the field
+    * summary - escaped one-line summary of the type settings (options, scale name or number limits), or empty
+    * deleteurl - action URL to delete it
+
+    Example context (json):
+    {
+        "id": 7,
+        "sortorder": 1,
+        "label": "What went well this year?",
+        "description": "Think about your main achievements",
+        "required": true,
+        "typename": "Long text",
+        "completedbyname": "Both",
+        "summary": "",
+        "deleteurl": "#"
+    }
+}}
+<span class="local-appraisal-drag-handle me-2 text-muted" data-drag-type="move" draggable="true"
+      title="{{#str}} dragtoreorder, local_appraisal {{/str}}" aria-hidden="true">
+    {{#pix}} i/dragdrop, core {{/pix}}
+</span>
+<span class="badge bg-light text-dark border me-2" data-region="field-number">{{sortorder}}</span>
+<div class="local-appraisal-editor-label">
+    {{label}}
+    <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle ms-1">{{typename}}</span>
+    <span class="badge bg-light text-dark border ms-1">{{completedbyname}}</span>
+    {{#required}}<span class="badge bg-secondary text-dark ms-1">
+        {{#str}} fieldrequired, local_appraisal {{/str}}</span>
+    {{/required}}
+    {{#description}}<div class="text-muted small">{{description}}</div>{{/description}}
+    {{#summary}}<div class="text-muted small">{{summary}}</div>{{/summary}}
+</div>
+<div class="btn-group btn-group-sm ms-auto" role="group">
+    <button type="button" class="btn btn-secondary" data-action="move-up"
+            aria-label="{{#str}} moveup {{/str}}" title="{{#str}} moveup {{/str}}">{{#pix}} i/up, core {{/pix}}</button>
+    <button type="button" class="btn btn-secondary" data-action="move-down"
+            aria-label="{{#str}} movedown {{/str}}" title="{{#str}} movedown {{/str}}">{{#pix}} i/down, core {{/pix}}</button>
+    <button type="button" class="btn btn-secondary" data-action="edit-field" data-id="{{id}}"
+            data-title="{{#str}} editfield, local_appraisal {{/str}}">{{#str}} edit {{/str}}</button>
+    <a href="{{deleteurl}}" class="btn btn-outline-danger">{{#str}} delete {{/str}}</a>
+</div>

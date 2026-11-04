@@ -1,0 +1,51 @@
+.local-appraisal-drag-handle {
+    cursor: grab;
+}
+
+.local-appraisal-dragging {
+    opacity: 0.4;
+}
+
+/*
+ * Editor rows: a section header, level or field, with its buttons on the right. The label takes the spare width,
+ * but once it would have less than 12rem the buttons move onto a line of their own, so on a phone they stay
+ * inside the card instead of spilling past it.
+ */
+.local-appraisal-editor-row {
+    flex-wrap: wrap;
+    row-gap: 0.25rem;
+}
+
+.local-appraisal-editor-label {
+    flex: 1 1 12rem;
+    min-width: 0;
+    margin-right: 0.5rem;
+}
+
+/* Plain text answers: keep the line breaks the person typed, and wrap long unbroken strings. */
+.local-appraisal-answer {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+/* The appraisal page's action footer stays in view while a long form is scrolled. */
+.local-appraisal-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    background-color: var(--bs-body-bg, #fff);
+}
+
+/* The appraisal page: wide enough for two columns of answers, but not so wide that a line is hard to read. */
+.local-appraisal-record-page {
+    max-width: 1140px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Core's initials bar has letters (I, J) narrower than the 24px minimum touch target. */
+.local-appraisal-initials .pagination .page-item .page-link {
+    min-width: 28px;
+    margin-left: 0;
+    text-align: center;
+}

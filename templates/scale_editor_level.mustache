@@ -1,0 +1,65 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_appraisal/scale_editor_level
+
+    The contents of one sortable level row in the scale editor. The caller supplies the
+    <li data-region="level-item"> wrapper, so the example renders as valid HTML on its own.
+
+    Context variables required for this template:
+    * id - the level id
+    * sortorder - its position in the scale
+    * label - formatted label
+    * value - the formatted numeric value (shown in the editor only)
+    * description - plain text description, or null
+    * deleteurl - action URL to delete it, or null when the scale is locked
+    * locked - whether the scale is locked, which hides the reorder controls
+
+    Example context (json):
+    {
+        "id": 11,
+        "sortorder": 1,
+        "label": "Meets expectations",
+        "value": "2.00",
+        "description": "Consistently does what the role asks",
+        "deleteurl": "#",
+        "locked": false
+    }
+}}
+{{^locked}}
+<span class="local-appraisal-drag-handle me-2 text-muted" data-drag-type="move" draggable="true"
+      title="{{#str}} dragtoreorder, local_appraisal {{/str}}" aria-hidden="true">
+    {{#pix}} i/dragdrop, core {{/pix}}
+</span>
+{{/locked}}
+<span class="badge bg-light text-dark border me-2" data-region="level-number">{{sortorder}}</span>
+<div class="local-appraisal-editor-label">
+    <strong>{{{label}}}</strong>
+    <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle ms-1" data-region="level-value">{{value}}</span>
+    {{#description}}<div class="text-muted small">{{description}}</div>{{/description}}
+</div>
+<div class="btn-group btn-group-sm ms-auto" role="group">
+    {{^locked}}
+    <button type="button" class="btn btn-secondary" data-action="move-up"
+            aria-label="{{#str}} moveup {{/str}}" title="{{#str}} moveup {{/str}}">{{#pix}} i/up, core {{/pix}}</button>
+    <button type="button" class="btn btn-secondary" data-action="move-down"
+            aria-label="{{#str}} movedown {{/str}}" title="{{#str}} movedown {{/str}}">{{#pix}} i/down, core {{/pix}}</button>
+    {{/locked}}
+    <button type="button" class="btn btn-secondary" data-action="edit-level" data-id="{{id}}"
+            data-title="{{#str}} editlevel, local_appraisal {{/str}}">{{#str}} edit {{/str}}</button>
+    {{#deleteurl}}<a href="{{deleteurl}}" class="btn btn-outline-danger">{{#str}} delete {{/str}}</a>{{/deleteurl}}
+</div>

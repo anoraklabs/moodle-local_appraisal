@@ -1,0 +1,108 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_appraisal/record_field
+
+    One field card on the appraisal page: its label, and the answers the viewer is allowed to see.
+
+    Context variables required for this template:
+    * id, label, description (or null), required, completedby, complete, mine - the field and the viewer's side
+    * twocolumns, columns - when both sides complete the field and the other side's answer is visible: role, answer
+      and own for each column, appraisee first
+    * stacked - long text: the two columns sit one under the other at full width instead of side by side
+    * single, answer, answerrole - otherwise the one answer shown, and whose it is
+    * input - when the viewer can edit the field, the context for record_input (also on the viewer's own column
+      when both sides are shown); the answer is then the saved one, for its Saved line
+    * hidden, hiddennote - the other side's answer is not visible yet, and the sentence that says so
+    * an answer has text, description and saved
+
+    Example context (json):
+    {
+        "id": 1,
+        "label": "What went well?",
+        "description": "Think of three things",
+        "required": true,
+        "completedby": "Appraisee",
+        "complete": true,
+        "mine": true,
+        "twocolumns": false,
+        "stacked": false,
+        "columns": [],
+        "single": true,
+        "answer": {"text": "Delivered the project", "description": "", "saved": "Saved by Ellie, 1 Mar 2026"},
+        "answerrole": "Appraisee",
+        "hidden": false,
+        "hiddennote": ""
+    }
+}}
+<div class="mb-4 pb-3 border-bottom" data-region="field" data-fieldid="{{id}}"
+     data-mine="{{#mine}}1{{/mine}}{{^mine}}0{{/mine}}"
+     data-required="{{#required}}1{{/required}}{{^required}}0{{/required}}"
+     data-complete="{{#complete}}1{{/complete}}{{^complete}}0{{/complete}}">
+    <div class="fw-bold">{{label}}</div>
+    <div class="mb-1">
+        {{#required}}
+        <span class="badge bg-secondary text-dark">{{#str}} fieldrequired, local_appraisal {{/str}}</span>
+        {{/required}}
+        <span class="badge bg-light text-dark border">{{completedby}}</span>
+    </div>
+    {{#description}}<div class="text-muted small mb-2">{{description}}</div>{{/description}}
+
+    {{#twocolumns}}
+    <div class="row mt-2">
+        {{#columns}}
+        <div class="{{#stacked}}col-12{{/stacked}}{{^stacked}}col-md-6{{/stacked}} mb-2" data-region="answer"
+             data-own="{{#own}}1{{/own}}{{^own}}0{{/own}}">
+            <div class="small text-muted">{{role}}</div>
+            {{#input}}
+            {{> local_appraisal/record_input }}
+            <div class="text-muted small" data-region="saved">{{#answer}}{{saved}}{{/answer}}</div>
+            {{/input}}
+            {{^input}}
+            {{#answer}}
+            <div class="local-appraisal-answer">{{text}}</div>
+            {{#description}}<div class="text-muted small">{{description}}</div>{{/description}}
+            <div class="text-muted small">{{saved}}</div>
+            {{/answer}}
+            {{^answer}}<div class="text-muted">{{#str}} notanswered, local_appraisal {{/str}}</div>{{/answer}}
+            {{/input}}
+        </div>
+        {{/columns}}
+    </div>
+    {{/twocolumns}}
+
+    {{^twocolumns}}
+    {{#single}}
+    <div class="mt-2" data-region="answer" data-own="{{#mine}}1{{/mine}}{{^mine}}0{{/mine}}">
+        {{#input}}
+        {{> local_appraisal/record_input }}
+        <div class="text-muted small" data-region="saved">{{#answer}}{{saved}}{{/answer}}</div>
+        {{/input}}
+        {{^input}}
+        {{#answer}}
+        <div class="small text-muted">{{answerrole}}</div>
+        <div class="local-appraisal-answer">{{text}}</div>
+        {{#description}}<div class="text-muted small">{{description}}</div>{{/description}}
+        <div class="text-muted small">{{saved}}</div>
+        {{/answer}}
+        {{^answer}}<div class="text-muted">{{#str}} notanswered, local_appraisal {{/str}}</div>{{/answer}}
+        {{/input}}
+    </div>
+    {{/single}}
+    {{#hiddennote}}<div class="text-muted small mt-2" data-region="hidden-note">{{hiddennote}}</div>{{/hiddennote}}
+    {{/twocolumns}}
+</div>

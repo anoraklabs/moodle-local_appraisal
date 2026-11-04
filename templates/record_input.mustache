@@ -1,0 +1,133 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_appraisal/record_input
+
+    The input for one field, saved as it is changed by the record_form module. Built by output\answer_input.
+
+    Context variables required for this template:
+    * required - whether the field is required
+    * fieldid, type, labelid, label - the field, its type value, and the label text with the id the controls use as
+      their accessible name (hidden, because the card already shows the label)
+    * isshorttext, islongtext, isradio, isselect, ismulti, isscale, isdate, isnumber - which control to draw
+    * value - the saved text, day (YYYY-MM-DD) or number
+    * maxlength, textlength - limits for short and long text
+    * options, hasoptions - key, label, description, checked, id for each choice or scale level
+    * canclear - whether the answer can be cleared with a button
+    * hasmin, min, hasmax, max, step - limits for a number
+
+    Example context (json):
+    {
+        "fieldid": 7,
+        "type": 3,
+        "labelid": "local-appraisal-label-7",
+        "label": "Preferred working pattern",
+        "required": true,
+        "isshorttext": false,
+        "islongtext": false,
+        "isradio": true,
+        "isselect": false,
+        "ismulti": false,
+        "isscale": false,
+        "isdate": false,
+        "isnumber": false,
+        "value": "",
+        "maxlength": 255,
+        "textlength": 5000,
+        "options": [
+            {"key": 1, "label": "Office", "description": "", "checked": false, "id": "local-appraisal-opt-7-1"},
+            {"key": 2, "label": "Home", "description": "", "checked": true, "id": "local-appraisal-opt-7-2"}
+        ],
+        "hasoptions": true,
+        "canclear": true,
+        "hasmin": false,
+        "min": null,
+        "hasmax": false,
+        "max": null,
+        "step": "any"
+    }
+}}
+<div data-region="input" data-fieldid="{{fieldid}}" data-type="{{type}}">
+    <span id="{{labelid}}" class="visually-hidden">{{label}}</span>
+    {{#isshorttext}}
+    <input type="text" class="form-control" data-region="control" aria-labelledby="{{labelid}}"
+           maxlength="{{maxlength}}" value="{{value}}" {{#required}}aria-required="true"{{/required}}>
+    {{/isshorttext}}
+    {{#islongtext}}
+    <textarea class="form-control" rows="5" data-region="control" aria-labelledby="{{labelid}}"
+              maxlength="{{textlength}}" {{#required}}aria-required="true"{{/required}}>{{value}}</textarea>
+    {{/islongtext}}
+    {{#isradio}}
+    <div role="radiogroup" aria-labelledby="{{labelid}}" {{#required}}aria-required="true"{{/required}}>
+        {{#options}}
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="local-appraisal-field-{{fieldid}}" id="{{id}}"
+                   value="{{key}}" data-region="control" {{#checked}}checked{{/checked}}>
+            <label class="form-check-label" for="{{id}}">{{label}}</label>
+        </div>
+        {{/options}}
+    </div>
+    {{/isradio}}
+    {{#isselect}}
+    <select class="form-select" data-region="control" aria-labelledby="{{labelid}}" {{#required}}aria-required="true"{{/required}}>
+        <option value="">{{#str}} choosedots {{/str}}</option>
+        {{#options}}
+        <option value="{{key}}" {{#checked}}selected{{/checked}}>{{label}}</option>
+        {{/options}}
+    </select>
+    {{/isselect}}
+    {{#ismulti}}
+    <div role="group" aria-labelledby="{{labelid}}">
+        {{#options}}
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="{{id}}" value="{{key}}" data-region="control"
+                   {{#checked}}checked{{/checked}}>
+            <label class="form-check-label" for="{{id}}">{{label}}</label>
+        </div>
+        {{/options}}
+    </div>
+    {{/ismulti}}
+    {{#isscale}}
+    <div role="radiogroup" aria-labelledby="{{labelid}}" {{#required}}aria-required="true"{{/required}}>
+        {{#options}}
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="local-appraisal-field-{{fieldid}}" id="{{id}}"
+                   value="{{key}}" data-region="control" {{#checked}}checked{{/checked}}>
+            <label class="form-check-label" for="{{id}}">
+                {{label}}
+                {{#description}}<span class="d-block text-muted small">{{description}}</span>{{/description}}
+            </label>
+        </div>
+        {{/options}}
+    </div>
+    {{/isscale}}
+    {{#isdate}}
+    <input type="date" class="form-control w-auto" data-region="control" aria-labelledby="{{labelid}}" value="{{value}}"
+           {{#required}}aria-required="true"{{/required}}>
+    {{/isdate}}
+    {{#isnumber}}
+    <input type="number" class="form-control w-auto" data-region="control" aria-labelledby="{{labelid}}"
+           {{#required}}aria-required="true"{{/required}} step="{{step}}"
+           {{#hasmin}}min="{{min}}"{{/hasmin}} {{#hasmax}}max="{{max}}"{{/hasmax}} value="{{value}}">
+    {{/isnumber}}
+    {{#canclear}}
+    <button type="button" class="btn btn-link btn-sm px-0" data-action="clear" aria-describedby="{{labelid}}">
+        {{#str}} clearanswer, local_appraisal {{/str}}
+    </button>
+    {{/canclear}}
+    <div class="small mt-1" data-region="save-status" role="status" aria-live="polite"></div>
+</div>

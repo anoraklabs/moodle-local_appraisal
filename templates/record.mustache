@@ -1,0 +1,235 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_appraisal/record
+
+    One appraisal cycle, as the viewer is allowed to see it.
+
+    Context variables required for this template:
+    * recordid - the record id
+    * template, version, label - the template name (already formatted), version number and cycle label (or null)
+    * overview - formatted overview HTML, or null
+    * status, appraiser, completed - status name, the owner's name, and the completion date (empty when not set)
+    * due, overdue - the due date text (empty when none) and whether it has passed on an open cycle
+    * progress - "N of M of your required fields complete", or empty when the viewer has none to complete
+    * ownerbanner - who owns the record when the viewer is another appraiser, or null
+    * previousrecord - text and url of the last completed cycle, or null
+    * hassections, sections - groups of name (formatted or null), description (HTML or null), progress (text or
+      empty) and fields. Each field has id, label, description (or null), required, completedby, complete, mine,
+      twocolumns with columns (role, answer, own), stacked (long text: columns one under the other), single, answer and
+      answerrole, hidden and hiddennote. An answer has text, description (a scale level's description) and saved (who
+      saved it and when). All text is plain and escaped by the template
+    * comments - the overall comments card, or null when the version takes none: required, visible, has, html,
+      hiddennote, and for the owner editable, value and textlength
+    * overallgrade - label and description of the overall grade, or null
+    * footer - the lifecycle actions the viewer may take, or null: actionurl and sesskey (each button is a small GET
+      form to the confirmation page), submit (ready) and signoff (ready, blocked - why the status stops it, needsstart, needscomment)
+      or null, handback and takeownership flags, outstanding (what is still to do, plain text), and menu (core's kebab
+      menu, already rendered)
+    * dashboardurl - the appraisee's dashboard
+
+    Example context (json):
+    {
+        "recordid": 5,
+        "template": "Annual performance appraisal",
+        "version": 2,
+        "label": "2026 review",
+        "overview": "<p>Complete your part before the due date.</p>",
+        "status": "In progress",
+        "appraiser": "Alice Appraiser",
+        "completed": "",
+        "due": "31 March 2026",
+        "overdue": true,
+        "progress": "1 of 2 of your required fields complete",
+        "ownerbanner": null,
+        "previousrecord": {"text": "Previous appraisal: completed 1 March 2025 by Alice Appraiser", "url": "#"},
+        "hassections": true,
+        "sections": [
+            {"name": "Looking back", "description": "<p>Last year.</p>", "progress": "1 of 2 required complete",
+             "fields": [
+                {"id": 1, "label": "What went well?", "description": "Think of three things", "required": true,
+                 "completedby": "Both", "complete": true, "mine": true, "twocolumns": true,
+                 "columns": [
+                    {"role": "Appraisee", "answer": {"text": "Delivered the project", "description": "",
+                        "saved": "Saved by Ellie, 1 Mar 2026"}, "own": false},
+                    {"role": "Appraiser", "answer": null, "own": true}
+                 ],
+                 "single": false, "answer": null, "answerrole": "Appraiser", "hidden": false, "hiddennote": ""}
+             ]}
+        ],
+        "comments": {"required": false, "visible": true, "has": true, "html": "Good year.", "hiddennote": ""},
+        "overallgrade": {"label": "Meets expectations", "description": "Does what the role asks"},
+        "footer": {
+            "actionurl": "#",
+            "sesskey": "abc123",
+            "submit": null,
+            "signoff": {"ready": false, "blocked": "", "needsstart": false, "needscomment": true},
+            "handback": true,
+            "takeownership": false,
+            "outstanding": "Required fields still to complete: 2",
+            "menu": "<div class=\"action-menu\"><a href=\"#\" role=\"button\">Actions</a></div>"
+        },
+        "dashboardurl": "#"
+    }
+}}
+<div data-region="record" data-recordid="{{recordid}}">
+    <h2 class="h3">{{{template}}}{{#label}} &mdash; {{label}}{{/label}}</h2>
+    <dl class="row mx-0 mb-3 local-appraisal-record-header">
+        <dt class="col-sm-3">{{#str}} status {{/str}}</dt>
+        <dd class="col-sm-9" data-region="record-status">{{status}}</dd>
+        <dt class="col-sm-3">{{#str}} appraiser, local_appraisal {{/str}}</dt>
+        <dd class="col-sm-9">{{appraiser}}</dd>
+        <dt class="col-sm-3">{{#str}} templateversion, local_appraisal {{/str}}</dt>
+        <dd class="col-sm-9">{{{template}}}, {{#str}} version, local_appraisal, {{version}} {{/str}}</dd>
+        {{#due}}
+        <dt class="col-sm-3">{{#str}} due, local_appraisal {{/str}}</dt>
+        <dd class="col-sm-9">
+            {{due}}
+            {{#overdue}}<span class="badge bg-danger ms-1">{{#str}} overdue, local_appraisal {{/str}}</span>{{/overdue}}
+        </dd>
+        {{/due}}
+        {{#completed}}
+        <dt class="col-sm-3">{{#str}} completed, local_appraisal {{/str}}</dt>
+        <dd class="col-sm-9">{{completed}}</dd>
+        {{/completed}}
+        {{#progress}}
+        <dt class="col-sm-3">{{#str}} yourprogress, local_appraisal {{/str}}</dt>
+        <dd class="col-sm-9" data-region="record-progress">{{progress}}</dd>
+        {{/progress}}
+    </dl>
+
+    {{#ownerbanner}}<div class="alert alert-info">{{ownerbanner}}</div>{{/ownerbanner}}
+    {{#previousrecord}}
+    <p class="text-muted">
+        {{text}} &middot; <a href="{{url}}" target="_blank" rel="noopener">{{#str}} view {{/str}}</a>
+    </p>
+    {{/previousrecord}}
+
+    {{#overview}}
+    <details class="card mb-3" open>
+        <summary class="card-header">{{#str}} overview, local_appraisal {{/str}}</summary>
+        <div class="card-body">{{{overview}}}</div>
+    </details>
+    {{/overview}}
+
+    {{#sections}}
+    {{#name}}
+    <details class="card mb-3" open data-region="section">
+        <summary class="card-header">
+            <span class="h5">{{{name}}}</span>
+            <span class="text-muted small ms-2" data-region="section-progress">{{progress}}</span>
+        </summary>
+        <div class="card-body">
+            {{#description}}<div class="mb-3">{{{description}}}</div>{{/description}}
+            {{#fields}}
+            {{> local_appraisal/record_field }}
+            {{/fields}}
+        </div>
+    </details>
+    {{/name}}
+    {{^name}}
+    <div class="card mb-3" data-region="section">
+        <div class="card-body">
+            {{#fields}}
+            {{> local_appraisal/record_field }}
+            {{/fields}}
+        </div>
+    </div>
+    {{/name}}
+    {{/sections}}
+
+    {{#comments}}
+    <div class="card mb-3" data-region="comments">
+        <div class="card-header">
+            {{#str}} overallcomments, local_appraisal {{/str}}
+            {{#required}}
+            <span class="badge bg-secondary text-dark ms-1">{{#str}} fieldrequired, local_appraisal {{/str}}</span>
+            {{/required}}
+        </div>
+        <div class="card-body">
+            {{#editable}}
+            <textarea class="form-control" rows="5" maxlength="{{textlength}}" data-region="comment-input"
+                      aria-label="{{#str}} overallcomments, local_appraisal {{/str}}">{{value}}</textarea>
+            <div class="small mt-1" data-region="comment-status" role="status" aria-live="polite"></div>
+            {{/editable}}
+            {{^editable}}
+            {{#has}}<div>{{{html}}}</div>{{/has}}
+            {{^has}}
+            {{#visible}}<span class="text-muted">{{#str}} notanswered, local_appraisal {{/str}}</span>{{/visible}}
+            {{/has}}
+            {{#hiddennote}}<span class="text-muted">{{hiddennote}}</span>{{/hiddennote}}
+            {{/editable}}
+        </div>
+    </div>
+    {{/comments}}
+
+    {{#overallgrade}}
+    <div class="card mb-3" data-region="overall-grade">
+        <div class="card-header">{{#str}} overallgrade, local_appraisal {{/str}}</div>
+        <div class="card-body">
+            <strong>{{label}}</strong>
+            {{#description}}<div class="text-muted">{{description}}</div>{{/description}}
+        </div>
+    </div>
+    {{/overallgrade}}
+
+    {{#footer}}
+    <div class="local-appraisal-footer d-flex flex-wrap align-items-center gap-2 mt-4 py-3 border-top" data-region="record-footer">
+        {{#submit}}
+        <form method="get" action="{{actionurl}}" class="d-inline">
+            <input type="hidden" name="action" value="submit">
+            <input type="hidden" name="id" value="{{recordid}}">
+            <input type="hidden" name="sesskey" value="{{sesskey}}">
+            <button type="submit" class="btn btn-primary" data-region="footer-action" aria-describedby="local-appraisal-outstanding"
+                    {{^ready}}disabled{{/ready}}>{{#str}} submitmypart, local_appraisal {{/str}}</button>
+        </form>
+        {{/submit}}
+        {{#signoff}}
+        <form method="get" action="{{actionurl}}" class="d-inline">
+            <input type="hidden" name="action" value="signoff">
+            <input type="hidden" name="id" value="{{recordid}}">
+            <input type="hidden" name="sesskey" value="{{sesskey}}">
+            <button type="submit" class="btn btn-primary" data-region="footer-action" data-blocked="{{blocked}}"
+                    {{#needsstart}}data-needs-start="1"{{/needsstart}}
+                    {{#needscomment}}data-needs-comment="1"{{/needscomment}} aria-describedby="local-appraisal-outstanding"
+                    {{^ready}}disabled{{/ready}}>{{#str}} signoff, local_appraisal {{/str}}</button>
+        </form>
+        {{/signoff}}
+        {{#handback}}
+        <form method="get" action="{{actionurl}}" class="d-inline">
+            <input type="hidden" name="action" value="handback">
+            <input type="hidden" name="id" value="{{recordid}}">
+            <input type="hidden" name="sesskey" value="{{sesskey}}">
+            <button type="submit" class="btn btn-secondary">{{#str}} handback, local_appraisal {{/str}}</button>
+        </form>
+        {{/handback}}
+        {{#takeownership}}
+        <form method="get" action="{{actionurl}}" class="d-inline">
+            <input type="hidden" name="action" value="takeownership">
+            <input type="hidden" name="id" value="{{recordid}}">
+            <input type="hidden" name="sesskey" value="{{sesskey}}">
+            <button type="submit" class="btn btn-secondary">{{#str}} takeownership, local_appraisal {{/str}}</button>
+        </form>
+        {{/takeownership}}
+        <span class="text-muted" id="local-appraisal-outstanding" data-region="outstanding" role="status"
+              aria-live="polite" {{^outstanding}}hidden{{/outstanding}}>{{outstanding}}</span>
+        <div class="ms-auto">{{{menu}}}</div>
+    </div>
+    {{/footer}}
+
+    <a href="{{dashboardurl}}" class="btn btn-link">{{#str}} dashboard, local_appraisal {{/str}}</a>
+</div>

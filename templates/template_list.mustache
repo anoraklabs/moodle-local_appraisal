@@ -1,0 +1,88 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_appraisal/template_list
+
+    The Manage templates table.
+
+    Context variables required for this template:
+    * newurl - URL of the New template form
+    * hastemplates - whether there are any rows
+    * templates - array of rows, each with name (formatted), url (or null), archived (shown as a badge),
+      publishedversion (number, url) or null, draft (url) or null, assignments, and actionmenu: the row's actions
+      (including links added by other plugins through the before_template_actions_exported hook) as core's kebab
+      action menu, rendered by output\row_actions
+
+    Example context (json):
+    {
+        "newurl": "#",
+        "hastemplates": true,
+        "templates": [
+            {
+                "name": "Annual performance appraisal",
+                "archived": false,
+                "publishedversion": {"number": 2, "url": "#"},
+                "draft": {"url": "#"},
+                "url": "#",
+                "assignments": 14,
+                "actionmenu": "<div class=\"action-menu\"><a href=\"#\" role=\"button\">Actions</a></div>"
+            }
+        ]
+    }
+}}
+<div class="mb-3">
+    <a href="{{newurl}}" class="btn btn-primary">{{#str}} newtemplate, local_appraisal {{/str}}</a>
+</div>
+{{#hastemplates}}
+<div class="table-responsive">
+<table class="table table-striped generaltable">
+    <thead>
+        <tr>
+            <th scope="col">{{#str}} templatename, local_appraisal {{/str}}</th>
+            <th scope="col">{{#str}} publishedversion, local_appraisal {{/str}}</th>
+            <th scope="col">{{#str}} draft, local_appraisal {{/str}}</th>
+            <th scope="col">{{#str}} assignments, local_appraisal {{/str}}</th>
+            <th scope="col"><span class="visually-hidden">{{#str}} actions {{/str}}</span></th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#templates}}
+        <tr>
+            <td>
+                {{#url}}<a href="{{url}}">{{{name}}}</a>{{/url}}{{^url}}{{{name}}}{{/url}}
+                {{#archived}}
+                <span class="badge bg-warning text-dark ms-1">{{#str}} statusarchived, local_appraisal {{/str}}</span>
+                {{/archived}}
+            </td>
+            <td>
+                {{#publishedversion}}
+                <a href="{{url}}">{{#str}} version, local_appraisal, {{number}} {{/str}}</a>
+                {{/publishedversion}}
+                {{^publishedversion}}{{#str}} nopublishedversion, local_appraisal {{/str}}{{/publishedversion}}
+            </td>
+            <td>{{#draft}}<a href="{{url}}">{{#str}} draftinprogress, local_appraisal {{/str}}</a>{{/draft}}</td>
+            <td>{{assignments}}</td>
+            <td>{{{actionmenu}}}</td>
+        </tr>
+        {{/templates}}
+    </tbody>
+</table>
+</div>
+{{/hastemplates}}
+{{^hastemplates}}
+<p>{{#str}} notemplates, local_appraisal {{/str}}</p>
+{{/hastemplates}}

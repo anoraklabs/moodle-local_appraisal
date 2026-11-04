@@ -1,0 +1,151 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_appraisal/version_view
+
+    Read-only view of a published or archived template version.
+
+    Context variables required for this template:
+    * versionid - the version's id
+    * templatename - formatted template name
+    * versionnumber - integer
+    * statusname - display name of the version's status
+    * reminder - due date reminder summary
+    * comments - overall comments mode (Off, Optional or Required)
+    * overallgrade - overall grade summary (Off, or Optional or Required with the scale name)
+    * overview - formatted overview HTML, or null
+    * ispublished - whether this is the current published version (enables Correct wording)
+    * hasfields - whether the version has any fields
+    * sections - groups of id, name (formatted), description (HTML), fields; one group with a null name when the version
+      has no sections. Each field has id, sortorder, label, description, required, typename, completedbyname and
+      summary (the one-line type settings)
+    * createdrafturl - action URL to start a new draft, or null if a draft already exists
+    * history - array of number, statusname, fields, records, url, current
+    * listurl - URL of the Manage templates page
+
+    Example context (json):
+    {
+        "versionid": 2,
+        "templatename": "Annual performance appraisal",
+        "versionnumber": 1,
+        "statusname": "Published",
+        "reminder": "Reminder 7 days before the due date",
+        "comments": "Optional",
+        "overallgrade": "Optional, Performance rating",
+        "overview": "<p>Walk the whole floor before starting.</p>",
+        "ispublished": true,
+        "hasfields": true,
+        "sections": [
+            {"id": 4, "name": "Review", "description": "<p>Looking back.</p>", "fields": [
+                {"id": 7, "sortorder": 1, "label": "What went well this year?", "required": true, "typename": "Long text",
+                 "completedbyname": "Both", "description": "Think about your main achievements", "summary": ""}
+            ]}
+        ],
+        "createdrafturl": "#",
+        "history": [
+            {"number": 1, "statusname": "Published", "fields": 1, "records": 4, "url": "#", "current": true}
+        ],
+        "listurl": "#"
+    }
+}}
+<div data-region="field-editor" data-versionid="{{versionid}}">
+    <h2>{{{templatename}}}</h2>
+    <p class="text-muted">{{#str}} version, local_appraisal, {{versionnumber}} {{/str}} &mdash; {{statusname}}</p>
+
+    <dl class="row mx-0">
+        <dt class="col-sm-3">{{#str}} sendreminder, local_appraisal {{/str}}</dt>
+        <dd class="col-sm-9">{{reminder}}</dd>
+        <dt class="col-sm-3">{{#str}} commentsmode, local_appraisal {{/str}}</dt>
+        <dd class="col-sm-9">{{comments}}</dd>
+        <dt class="col-sm-3">{{#str}} overallgrademode, local_appraisal {{/str}}</dt>
+        <dd class="col-sm-9">{{overallgrade}}</dd>
+        {{#overview}}
+        <dt class="col-sm-3">{{#str}} overview, local_appraisal {{/str}}</dt>
+        <dd class="col-sm-9">
+            {{{overview}}}
+            {{#ispublished}}
+            <button type="button" class="btn btn-secondary btn-sm" data-action="edit-overview" data-id="0"
+                    data-title="{{#str}} editoverview, local_appraisal {{/str}}">
+                {{#str}} editoverview, local_appraisal {{/str}}
+            </button>
+            {{/ispublished}}
+        </dd>
+        {{/overview}}
+        {{^overview}}
+        {{#ispublished}}
+        <dt class="col-sm-3">{{#str}} overview, local_appraisal {{/str}}</dt>
+        <dd class="col-sm-9">
+            <button type="button" class="btn btn-secondary btn-sm" data-action="edit-overview" data-id="0"
+                    data-title="{{#str}} editoverview, local_appraisal {{/str}}">
+                {{#str}} editoverview, local_appraisal {{/str}}
+            </button>
+        </dd>
+        {{/ispublished}}
+        {{/overview}}
+    </dl>
+
+    <h3>{{#str}} fields, local_appraisal {{/str}}</h3>
+    {{#hasfields}}
+    {{#sections}}
+    {{#name}}
+    <div class="d-flex align-items-start mt-3">
+        <h4 class="h5 flex-grow-1">{{{name}}}</h4>
+        {{#ispublished}}
+        <button type="button" class="btn btn-secondary btn-sm ms-2" data-action="edit-section" data-id="{{id}}"
+                data-title="{{#str}} correctwording, local_appraisal {{/str}}">
+                {{#str}} correctwording, local_appraisal {{/str}}</button>
+        {{/ispublished}}
+    </div>
+    {{#description}}<div class="mb-2">{{{description}}}</div>{{/description}}
+    {{/name}}
+    <ul class="list-group mb-3">
+        {{#fields}}
+        <li class="list-group-item d-flex align-items-start">
+            <span class="badge bg-light text-dark border me-2">{{sortorder}}</span>
+            <div class="flex-grow-1">
+                {{label}}
+                <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle ms-1">{{typename}}</span>
+                <span class="badge bg-light text-dark border ms-1">{{completedbyname}}</span>
+                {{#required}}<span class="badge bg-secondary text-dark ms-1">
+                    {{#str}} fieldrequired, local_appraisal {{/str}}</span>
+                {{/required}}
+                {{#description}}<div class="text-muted small">{{description}}</div>{{/description}}
+                {{#summary}}<div class="text-muted small">{{summary}}</div>{{/summary}}
+            </div>
+            {{#ispublished}}
+            <button type="button" class="btn btn-secondary btn-sm ms-2" data-action="edit-field" data-id="{{id}}"
+                    data-title="{{#str}} correctwording, local_appraisal {{/str}}">
+                    {{#str}} correctwording, local_appraisal {{/str}}</button>
+            {{/ispublished}}
+        </li>
+        {{/fields}}
+    </ul>
+    {{/sections}}
+    {{/hasfields}}
+    {{^hasfields}}
+    <p>{{#str}} nofields, local_appraisal {{/str}}</p>
+    {{/hasfields}}
+
+    <div class="mt-4 pt-3 border-top">
+        {{#createdrafturl}}
+        <a href="{{createdrafturl}}" class="btn btn-primary me-2">{{#str}} createdraft, local_appraisal {{/str}}</a>
+        {{/createdrafturl}}
+        <a href="{{listurl}}" class="btn btn-link">{{#str}} managetemplates, local_appraisal {{/str}}</a>
+    </div>
+
+    {{> local_appraisal/version_history }}
+</div>

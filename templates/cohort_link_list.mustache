@@ -1,0 +1,74 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_appraisal/cohort_link_list
+
+    The Appraiser cohorts table.
+
+    Context variables required for this template:
+    * haslinks - whether there are any rows
+    * links - array of rows, each with appraisercohort and appraiseecohort (formatted names), appraisers and
+      appraisees (member counts) and actionmenu: the row's actions as core's kebab action menu, rendered by
+      output\row_actions
+
+    Example context (json):
+    {
+        "haslinks": true,
+        "links": [
+            {
+                "appraisercohort": "Sales managers",
+                "appraisers": 4,
+                "appraiseecohort": "Sales team",
+                "appraisees": 23,
+                "actionmenu": "<div class=\"action-menu\"><a href=\"#\" role=\"button\">Actions</a></div>"
+            }
+        ]
+    }
+}}
+<div class="mb-3">
+    <button type="button" class="btn btn-primary" data-action="add-link"
+            data-title="{{#str}} addlink, local_appraisal {{/str}}">{{#str}} addlink, local_appraisal {{/str}}</button>
+</div>
+{{#haslinks}}
+<div class="table-responsive">
+<table class="table table-striped generaltable">
+    <thead>
+        <tr>
+            <th scope="col">{{#str}} appraisercohort, local_appraisal {{/str}}</th>
+            <th scope="col">{{#str}} appraiseecohort, local_appraisal {{/str}}</th>
+            <th scope="col">{{#str}} appraisers, local_appraisal {{/str}}</th>
+            <th scope="col">{{#str}} appraisees, local_appraisal {{/str}}</th>
+            <th scope="col"><span class="visually-hidden">{{#str}} actions {{/str}}</span></th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#links}}
+        <tr>
+            <td>{{{appraisercohort}}}</td>
+            <td>{{{appraiseecohort}}}</td>
+            <td>{{appraisers}}</td>
+            <td>{{appraisees}}</td>
+            <td>{{{actionmenu}}}</td>
+        </tr>
+        {{/links}}
+    </tbody>
+</table>
+</div>
+{{/haslinks}}
+{{^haslinks}}
+<p>{{#str}} nolinks, local_appraisal {{/str}}</p>
+{{/haslinks}}
